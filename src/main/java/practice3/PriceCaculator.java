@@ -1,4 +1,7 @@
 package practice3;
 
-public class PriceCaculator {
+import java.math.BigDecimal;
+
+public abstract class PriceCaculator {
+    public abstract BigDecimal calculate();
 }

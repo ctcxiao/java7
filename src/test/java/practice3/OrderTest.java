@@ -12,7 +12,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by jxzhong on 2017/8/29.
  */
-public class OrderTest {
+public class OrderTest{
     @Test
     public void calculate() throws Exception {
         //Given

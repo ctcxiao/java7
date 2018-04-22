@@ -3,7 +3,7 @@ package practice3;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class Order {
+public class Order extends PriceCaculator{
 
     private List<OrderLineItem> orderLineItemList;
     private List<BigDecimal> discounts;
@@ -15,6 +15,7 @@ public class Order {
         this.tax = new BigDecimal(0.1);
     }
 
+    @Override
     public BigDecimal calculate() {
         BigDecimal subTotal = new BigDecimal(0);
 

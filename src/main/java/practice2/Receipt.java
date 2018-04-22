@@ -14,20 +14,24 @@ public class Receipt {
 
     public double CalculateGrandTotal(List<Product> products, List<OrderItem> items) {
         BigDecimal subTotal = calculateSubtotal(products, items);
+        BigDecimal grandTotal = calculateGrandTotal(products, items, subTotal);
+        return grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
 
+    private BigDecimal calculateGrandTotal(List<Product> products, List<OrderItem> items, BigDecimal subTotal) {
         for (Product product : products) {
             OrderItem curItem = findOrderItemByProduct(items, product);
-
-            BigDecimal reducedPrice = product.getPrice()
-                    .multiply(product.getDiscountRate())
-                    .multiply(new BigDecimal(curItem.getCount()));
-
+            BigDecimal reducedPrice = ProduceReducedPrice(product, curItem);
             subTotal = subTotal.subtract(reducedPrice);
         }
         BigDecimal taxTotal = subTotal.multiply(tax);
-        BigDecimal grandTotal = subTotal.add(taxTotal);
+        return subTotal.add(taxTotal);
+    }
 
-        return grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+    private BigDecimal ProduceReducedPrice(Product product, OrderItem curItem) {
+        return product.getPrice()
+                        .multiply(product.getDiscountRate())
+                        .multiply(new BigDecimal(curItem.getCount()));
     }
 
 
