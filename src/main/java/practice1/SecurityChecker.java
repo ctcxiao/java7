@@ -6,10 +6,7 @@ public class SecurityChecker {
         if (user == null){
             return false;
         }
-        if (permission == null){
-            return false;
-        }
-        return true;
+        return permission != null;
     }
 
     public boolean isAdmin() {

@@ -2,6 +2,8 @@ package practice2;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Receipt {
 
@@ -13,19 +15,9 @@ public class Receipt {
     private BigDecimal tax;
 
     public double CalculateGrandTotal(List<Product> products, List<OrderItem> items) {
-        BigDecimal subTotal = calculateSubtotal(products, items);
-        BigDecimal grandTotal = calculateGrandTotal(products, items, subTotal);
-        return grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-    }
-
-    private BigDecimal calculateGrandTotal(List<Product> products, List<OrderItem> items, BigDecimal subTotal) {
-        for (Product product : products) {
-            OrderItem curItem = findOrderItemByProduct(items, product);
-            BigDecimal reducedPrice = ProduceReducedPrice(product, curItem);
-            subTotal = subTotal.subtract(reducedPrice);
-        }
-        BigDecimal taxTotal = subTotal.multiply(tax);
-        return subTotal.add(taxTotal);
+        Map<Long, OrderItem> itemMap = items.stream().collect(Collectors.toMap(OrderItem::getCode, i -> i));
+        BigDecimal total = calculateSubtotal(products, itemMap);
+        return total.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     private BigDecimal ProduceReducedPrice(Product product, OrderItem curItem) {
@@ -35,24 +27,22 @@ public class Receipt {
     }
 
 
-    private OrderItem findOrderItemByProduct(List<OrderItem> items, Product product) {
-        OrderItem curItem = null;
-        for (OrderItem item : items) {
-            if (item.getCode() == product.getCode()) {
-                curItem = item;
-                break;
-            }
-        }
-        return curItem;
-    }
-
-    private BigDecimal calculateSubtotal(List<Product> products, List<OrderItem> items) {
+    private BigDecimal calculateSubtotal(List<Product> products, Map<Long, OrderItem> items) {
         BigDecimal subTotal = new BigDecimal(0);
         for (Product product : products) {
-            OrderItem item = findOrderItemByProduct(items, product);
-            BigDecimal itemTotal = product.getPrice().multiply(new BigDecimal(item.getCount()));
+            if (!items.containsKey(product.getCode())) {
+                continue;
+            }
+            BigDecimal itemTotal = getItemNetTotal(items, product);
             subTotal = subTotal.add(itemTotal);
         }
-        return subTotal;
+        return subTotal.multiply(tax.add(new BigDecimal(1)));
+    }
+
+    private BigDecimal getItemNetTotal(Map<Long, OrderItem> items, Product product) {
+        OrderItem item = items.get(product.getCode());
+        BigDecimal itemTotal = product.getPrice().multiply(new BigDecimal(item.getCount()));
+        BigDecimal reducedPrice = ProduceReducedPrice(product, item);
+        return itemTotal.subtract(reducedPrice);
     }
 }
