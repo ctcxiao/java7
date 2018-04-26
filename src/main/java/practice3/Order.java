@@ -3,19 +3,27 @@ package practice3;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class Order extends PriceCaculator{
+public class Order {
 
-     List<OrderLineItem> orderLineItemList;
-     List<BigDecimal> discounts;
-     BigDecimal tax;
+    private List<OrderLineItem> orderLineItemList;
+    private List<BigDecimal> discounts;
+    private BigDecimal tax;
 
-    public Order(List<OrderLineItem> orderLineItemList, List<BigDecimal> discounts) {
+    Order(List<OrderLineItem> orderLineItemList, List<BigDecimal> discounts) {
         this.orderLineItemList = orderLineItemList;
         this.discounts = discounts;
         this.tax = new BigDecimal(0.1);
     }
 
-    public BigDecimal calculate() {
-       return new PriceCaculator(this).calculate();
+    BigDecimal calculate() {
+        PriceCalculator priceCalculator = new PriceCalculator(orderLineItemList, discounts);
+
+        BigDecimal subTotal = priceCalculator.getTotal();
+
+        BigDecimal subtract = priceCalculator.getSubtract();
+
+        subTotal = subTotal.subtract(subtract);
+
+        return subTotal.multiply(this.tax.add(new BigDecimal(1)));
     }
 }
